@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
 from redis import StrictRedis
@@ -9,7 +9,10 @@ app = Flask(__name__)
 
 # 创建配置类
 class Config(object):
-    SECRET_KEY = 'dictionary'
+    import os
+    import base64
+    data = base64.b64encode(os.urandom(48))
+    SECRET_KEY = data
     DEBUG = True
 
     # 配置数据库
@@ -28,12 +31,11 @@ class Config(object):
     SESSION_USE_SIGNER = True
     # 3.设置存储对象
     SESSION_REDIS = StrictRedis(
-        host=REDIS_HOST,port=REDIS_PORT)
+        host=REDIS_HOST, port=REDIS_PORT)
     # 4.设置session为永久保存
     SECRET_PERMANENT = False
     # 5.设置存储有效期为一天（单位是秒）
     PERMANENT_SESSION_LIFETIME = 8640
-
 
 
 # 一 配置DEBUG
@@ -57,6 +59,7 @@ Session(app)
 
 @app.route('/')
 def index():
+    session['name1'] = 'join'
     return 'hello world'
 
 
