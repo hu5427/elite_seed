@@ -2,7 +2,7 @@
 from redis import StrictRedis
 
 
-class DevelopmentConfig(object):
+class Config(object):
     import os
     import base64
     data = base64.b64encode(os.urandom(48))
@@ -32,17 +32,17 @@ class DevelopmentConfig(object):
     PERMANENT_SESSION_LIFETIME = 8640
 
 
-class DevelopmentConfig(DevelopmentConfig):
+class DevelopmentConfig(Config):
     """开发环境配置"""
     DEBUG = True
 
 
-class ProductionConfig(DevelopmentConfig):
+class ProductionConfig(Config):
     """生产环境配置"""
     DEBUG = False
 
 
-class TestingConfig(DevelopmentConfig):
+class TestingConfig(Config):
     """测试环境配置"""
     DEBUG = True
     TESTING = True
