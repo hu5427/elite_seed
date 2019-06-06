@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf import CSRFProtect
 from redis import StrictRedis
 
 app = Flask(__name__)
@@ -29,6 +30,9 @@ redis_store = StrictRedis(
     host=Config.REDIS_HOST,
     port=Config.REDIS_PORT
 )
+
+# 四 配置CSRF
+CSRFProtect(app)
 
 
 @app.route('/')
