@@ -46,3 +46,9 @@ class TestingConfig(Config):
     """测试环境配置"""
     DEBUG = True
     TESTING = True
+
+config = {
+    "development": DevelopmentConfig,
+    "product": ProductionConfig,
+    "testing": TestingConfig
+    }
