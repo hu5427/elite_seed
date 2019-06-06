@@ -1,4 +1,6 @@
 from flask import Flask, session
+from flask_migrate import MigrateCommand
+from flask_script import Manager
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
 from redis import StrictRedis
@@ -56,12 +58,20 @@ CSRFProtect(app)
 # 五 集成flask_session
 Session(app)
 
+# 六 集成flask_script
+manager = Manager(app)
+
+# 七 集成flask_migrate
+Manager(app, db)
+manager.add_command("db", MigrateCommand)
+
 
 @app.route('/')
 def index():
     session['name1'] = 'join'
+    redis_store.set('hello', 'world')
     return 'hello world'
 
 
 if __name__ == '__main__':
-    app.run()
+    manager.run()
