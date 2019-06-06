@@ -2,7 +2,7 @@
 from redis import StrictRedis
 
 
-class Config(object):
+class DevelopmentConfig(object):
     import os
     import base64
     data = base64.b64encode(os.urandom(48))
@@ -30,3 +30,19 @@ class Config(object):
     SECRET_PERMANENT = False
     # 5.设置存储有效期为一天（单位是秒）
     PERMANENT_SESSION_LIFETIME = 8640
+
+
+class DevelopmentConfig(DevelopmentConfig):
+    """开发环境配置"""
+    DEBUG = True
+
+
+class ProductionConfig(DevelopmentConfig):
+    """生产环境配置"""
+    DEBUG = False
+
+
+class TestingConfig(DevelopmentConfig):
+    """测试环境配置"""
+    DEBUG = True
+    TESTING = True
