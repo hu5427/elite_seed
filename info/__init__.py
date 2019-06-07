@@ -10,7 +10,7 @@ from redis import StrictRedis
 from config import config
 
 # 将其变为全局变量，在函数中调用init集成SQLAlchemy到flask
-from modules.index import index_blu
+
 
 db = SQLAlchemy()
 
@@ -29,6 +29,7 @@ def set_log(config_name):
     logging.getLogger().addHandler(file_log_handler)
 
 
+redis_store = None # type: StrictRedis
 # 使用工厂方法
 def create_app(config_name):
     set_log(config_name)
@@ -41,6 +42,8 @@ def create_app(config_name):
     # db = SQLAlchemy(app)
     db.init_app(app)
     # 三 集成redis
+
+    global redis_store
     redis_store = StrictRedis(
         host=config[config_name].REDIS_HOST,
         port=config[config_name].REDIS_PORT
@@ -53,5 +56,6 @@ def create_app(config_name):
     Session(app)
 
     # 注册蓝图
+    from modules.index import index_blu
     app.register_blueprint(index_blu)
     return app
