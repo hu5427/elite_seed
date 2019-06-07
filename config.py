@@ -1,4 +1,6 @@
 # 创建配置类
+import logging
+
 from redis import StrictRedis
 
 
@@ -35,17 +37,23 @@ class Config(object):
 class DevelopmentConfig(Config):
     """开发环境配置"""
     DEBUG = True
+    # 开发环境下的日志级别
+    LOG_LEVEL = logging.DEBUG
 
 
 class ProductionConfig(Config):
     """生产环境配置"""
     DEBUG = False
+    # 生产环境下的日志级别
+    LOG_LEVEL = logging.ERROR
 
 
 class TestingConfig(Config):
     """测试环境配置"""
     DEBUG = True
     TESTING = True
+    # 测试环境下的日志级别
+    LOG_LEVEL = logging.DEBUG
 
 config = {
     "development": DevelopmentConfig,
