@@ -10,6 +10,8 @@ from redis import StrictRedis
 from config import config
 
 # 将其变为全局变量，在函数中调用init集成SQLAlchemy到flask
+from modules.index import index_blu
+
 db = SQLAlchemy()
 
 
@@ -49,4 +51,7 @@ def create_app(config_name):
 
     # 五 集成flask_session
     Session(app)
+
+    # 注册蓝图
+    app.register_blueprint(index_blu)
     return app
