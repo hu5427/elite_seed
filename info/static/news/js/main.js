@@ -177,8 +177,46 @@ function sendSMSCode() {
         $(".get_code").attr("onclick", "sendSMSCode();");
         return;
     }
-
+    var prams = {
+        "mobile": mobile,
+        "image_code": imageCode,
+        "image_code_id": imageCodeId
+    };
     // TODO 发送短信验证码
+    //理由ajax发送数据 mobile imageCode imageCodeId
+    $.ajax({
+        url: "/passport/sms_code",
+        type: "post",
+        contentType:'application/json',
+        data: JSON.stringify(prams),
+        // 由response接收后端数据 根据接收的值做相应的判断
+        success: function (response) {
+            //当返回0时说明短信验证码发送成功开始读秒
+            if (response.errno == "0"){
+                var num = 10;
+                var t = setInterval(function () {
+                    if (num == 1){
+                        //当读秒完成后从新显示获取验证码功能
+                        clearInterval(t)
+                        $(".get_code").attr("onclick","sendSMSCode()")
+                        $(".get_code").html("点击获取验证码")
+                    }
+                    else {
+                        num -= 1
+                        $(".get_code").html(num + "秒")
+                    }
+                },1000)
+            }
+            //当返回其他结果说明发送失败，显示报错结果
+            else {
+                alert(response.errmsg)
+                $("#register-image-code-err").html(response.errmsg)
+                $("#register-image-code-err").show()
+
+                $(".get_code").attr("onclick","sendSMSCode();")
+            }
+        }
+    })
 }
 
 // 调用该函数模拟点击左侧按钮

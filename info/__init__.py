@@ -49,11 +49,12 @@ def create_app(config_name):
     global redis_store
     redis_store = StrictRedis(
         host=config[config_name].REDIS_HOST,
-        port=config[config_name].REDIS_PORT
+        port=config[config_name].REDIS_PORT,
+        decode_responses=True
     )
 
     # 四 配置CSRF
-    CSRFProtect(app)
+    # CSRFProtect(app)
 
     # 五 集成flask_session
     Session(app)
