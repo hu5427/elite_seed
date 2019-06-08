@@ -3,12 +3,55 @@ import re
 
 from flask import request, abort, current_app, jsonify, make_response
 
-from info import redis_store, constants
+from info import redis_store, constants, db
 from info.libs.yuntongxun.sms import CCP
+from info.models import User
 from info.modules.passport import passport_blu
 from info.utils.captcha.captcha import captcha
 
 from info.utils.captcha.response_code import RET
+
+
+@passport_blu.route("/register", methods=["POST"])
+def register():
+    dict_data = request.json
+
+    mobile = dict_data.get("mobile")
+    smscode = dict_data.get("smscode")
+    password = dict_data.get("password")
+
+    if not all([mobile, smscode, password]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
+
+    if re.match(r"1[35678]\d{9}$", mobile):
+        return jsonify(errno=RET.PARAMERR, errmsg="手机号不正确")
+    try:
+        real_sms_code = redis_store.get("SMS_" + mobile)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.NODATA, errsg="数据库查询失败")
+
+    if not real_sms_code:
+        return jsonify(errno=RET.NODATA, errmsg="验证码已过期")
+
+    if real_sms_code != smscode:
+        return jsonify(errno=RET.DATAERR, errmsg="短信验证码输入错误")
+
+    # 密码待修复
+
+    user = User()
+    user.nick_name = mobile
+    user.password = password
+    user.mobile = mobile
+
+    try:
+        db.session.add(user)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据库保存失败")
+    return jsonify(errno=RET.OK, errmsg="注册成功")
 
 
 # 请求url是什么
@@ -54,12 +97,12 @@ def get_sms_code():
     # 6 定义随机6位验证码
     sms_code_str = "%06d" % random.randint(0, 999999)
     current_app.logger.info("短信验证码是：%s" % sms_code_str)
-    result = CCP().send_template_sms("mobile", [sms_code_str, constants.SMS_CODE_REDIS_EXPIRES / 60], 1)
-    # ccp.send_template_sms('18339303172', ['天道酬勤', 5], 1)
-    # 7 调用云通讯发送验证码
-    if result != 0:
-        return jsonify(errno=RET.THIRDERR, errmsg="短信发送失败")
-    8 将验证码存入redis
+    # result = CCP().send_template_sms("mobile", [sms_code_str, constants.SMS_CODE_REDIS_EXPIRES / 60], 1)
+    # # ccp.send_template_sms('18339303172', ['天道酬勤', 5], 1)
+    # # 7 调用云通讯发送验证码
+    # if result != 0:
+    #     return jsonify(errno=RET.THIRDERR, errmsg="短信发送失败")
+    # 8 将验证码存入redis
     try:
         redis_store.setex("SMS_" + mobile, constants.SMS_CODE_REDIS_EXPIRES, sms_code_str)
     except Exception as e:
