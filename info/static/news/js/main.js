@@ -142,8 +142,30 @@ $(function(){
             $("#register-password-err").show();
             return;
         }
-
+        var params = {
+            "mobile":mobile,
+            "smscode":smscode,
+            "password":password
+        }
         // 发起注册请求
+        $.ajax({
+            url:"/passport/register",
+            type: "post",
+            data:JSON.stringify(params),
+            contentType:"application/json",
+            success:function (response) {
+                if (response.errno == 0){
+                    location.reload()
+                }
+                else{
+                    alert(response.errmsg)
+                    $("#register-password-err").html(response.errmsg)
+                    $("#register-password-err").show()
+
+                }
+            }
+
+        })
 
     })
 })
@@ -193,7 +215,7 @@ function sendSMSCode() {
         success: function (response) {
             //当返回0时说明短信验证码发送成功开始读秒
             if (response.errno == "0"){
-                var num = 10;
+                var num = 60;
                 var t = setInterval(function () {
                     if (num == 1){
                         //当读秒完成后从新显示获取验证码功能

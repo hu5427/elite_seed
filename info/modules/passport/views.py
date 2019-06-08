@@ -23,7 +23,7 @@ def register():
     if not all([mobile, smscode, password]):
         return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
 
-    if re.match(r"1[35678]\d{9}$", mobile):
+    if not re.match(r"1[35678]\d{9}$", mobile):
         return jsonify(errno=RET.PARAMERR, errmsg="手机号不正确")
     try:
         real_sms_code = redis_store.get("SMS_" + mobile)
