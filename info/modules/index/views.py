@@ -1,4 +1,4 @@
-from flask import render_template
+from flask import render_template, current_app, redirect, send_file
 
 from info.modules.index import index_blu
 
@@ -9,3 +9,10 @@ from info.modules.index import index_blu
 def index():
     # redis_store.set('a','and')
     return render_template("news/index.html")
+
+
+@index_blu.route("/favicon.ico")
+def favicon():
+    # return send_file("news/favicon.ico")
+    # return redirect("news/favicon.ico")
+    return current_app.send_static_file("news/favicon.ico")
