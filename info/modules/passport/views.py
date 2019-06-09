@@ -13,7 +13,14 @@ from info.utils.captcha.captcha import captcha
 from info.utils.captcha.response_code import RET
 
 
-@passport_blu.route("/login", methods= ["POST"])
+@passport_blu.route("/logout")
+def logout():
+    session.pop("user_id", None)
+
+    return jsonify(errno=RET.OK, errmsg="退出成功")
+
+
+@passport_blu.route("/login", methods=["POST"])
 def login():
     dict_data = request.json
     mobile = dict_data.get("mobile")
