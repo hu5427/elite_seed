@@ -1,15 +1,53 @@
 import random
 import re
+from datetime import datetime
 
 from flask import request, abort, current_app, jsonify, make_response, session
+from werkzeug.security import generate_password_hash
 
 from info import redis_store, constants, db
 from info.libs.yuntongxun.sms import CCP
 from info.models import User
 from info.modules.passport import passport_blu
 from info.utils.captcha.captcha import captcha
-
 from info.utils.captcha.response_code import RET
+
+
+@passport_blu.route("/login")
+def login():
+    dict_data = request.json
+    mobile = dict_data.get("mobile")
+    password = dict_data.get("password")
+
+    if not all([mobile, password]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
+
+    if not re.match(r"1[35678]\d{9}$", mobile):
+        return jsonify(errno=RET.PARAMERR, errmsg="手机号不正确")
+
+    try:
+        user = User.query.filter_by(mobile=User.mobile).first()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.NODATA, errsg="数据库查询失败")
+
+    if not user:
+        return jsonify(errno=RET.NODATA, errmsg="用户没有注册")
+
+    if not user.check_password(password):
+        return jsonify(errno=RET.PWDERR, errmsg="密码错误")
+
+    user.last_login = datetime.now()
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据库保存失败")
+
+    session["user_id"] = user.id
+
+    return jsonify(errno=RET.OK, errmsg="登录成功")
 
 
 @passport_blu.route("/register", methods=["POST"])
@@ -41,9 +79,9 @@ def register():
 
     user = User()
     user.nick_name = mobile
-    user.password = password
+    # user.password = password
+    user.password_hash = generate_password_hash(password)
     user.mobile = mobile
-
 
     try:
         db.session.add(user)
