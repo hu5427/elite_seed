@@ -44,6 +44,7 @@ def register():
     user.password = password
     user.mobile = mobile
 
+
     try:
         db.session.add(user)
         db.session.commit()
@@ -97,7 +98,7 @@ def get_sms_code():
     # 6 定义随机6位验证码
     sms_code_str = "%06d" % random.randint(0, 999999)
     current_app.logger.info("短信验证码是：%s" % sms_code_str)
-    # result = CCP().send_template_sms("mobile", [sms_code_str, constants.SMS_CODE_REDIS_EXPIRES / 60], 1)
+    # result = CCP().send_template_sms(mobile, [sms_code_str, constants.SMS_CODE_REDIS_EXPIRES / 60], 1)
     # # ccp.send_template_sms('18339303172', ['天道酬勤', 5], 1)
     # # 7 调用云通讯发送验证码
     # if result != 0:
