@@ -1,7 +1,7 @@
 import random
 import re
 
-from flask import request, abort, current_app, jsonify, make_response
+from flask import request, abort, current_app, jsonify, make_response, session
 
 from info import redis_store, constants, db
 from info.libs.yuntongxun.sms import CCP
@@ -52,6 +52,8 @@ def register():
         db.session.rollback()
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="数据库保存失败")
+
+    session['user_id'] = user.id
     return jsonify(errno=RET.OK, errmsg="注册成功")
 
 
