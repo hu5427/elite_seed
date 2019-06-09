@@ -13,7 +13,7 @@ from info.utils.captcha.captcha import captcha
 from info.utils.captcha.response_code import RET
 
 
-@passport_blu.route("/login")
+@passport_blu.route("/login", methods= ["POST"])
 def login():
     dict_data = request.json
     mobile = dict_data.get("mobile")
@@ -26,7 +26,7 @@ def login():
         return jsonify(errno=RET.PARAMERR, errmsg="手机号不正确")
 
     try:
-        user = User.query.filter_by(mobile=User.mobile).first()
+        user = User.query.filter_by(mobile=mobile).first()
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno=RET.NODATA, errsg="数据库查询失败")
@@ -42,6 +42,7 @@ def login():
     try:
         db.session.commit()
     except Exception as e:
+        db.session.rollback()
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="数据库保存失败")
 
