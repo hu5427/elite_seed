@@ -127,6 +127,9 @@ $(function () {
             url: "/passport/login",
             type: "post",
             contentType: "application/json",
+            headers:{
+                "X-CSRFToken":getCookie("csrf_token")
+            },
             data: JSON.stringify(params),
             success: function (response) {
                 if (response.errno == "0") {
@@ -138,6 +141,7 @@ $(function () {
 
         })
     })
+
 
 
     // TODO 注册按钮点击
