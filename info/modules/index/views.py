@@ -1,7 +1,7 @@
 from flask import render_template, current_app, redirect, send_file, session
 
 from info import constants
-from info.models import User, News
+from info.models import User, News, Category
 from info.modules.index import index_blu
 
 
@@ -10,7 +10,7 @@ from info.modules.index import index_blu
 @index_blu.route('/')
 def index():
     # redis_store.set('a','and')
-
+    # 登录后右上角显示用户信息
     user_id = session.get("user_id")
 
     user = None
@@ -19,7 +19,7 @@ def index():
             user = User.query.get(user_id)
         except Exception as e:
             current_app.logger.error(e)
-
+    # 与数据库同步显示点击率排行
     clicks_news = []
     try:
         clicks_news = News.query.order_by(News.clicks.desc()).limit(constants.HOME_PAGE_MAX_NEWS).all()
@@ -30,9 +30,19 @@ def index():
     #     clicks_news_li.append(news_obj)
     clicks_news_li = [ news_obj for news_obj in clicks_news ]
 
+    # 显示新闻分类
+    category = []
+    try:
+        category = Category.query.all()
+    except Exception as e:
+        current_app.logger.error(e)
+    category_li = [category_dict for category_dict in category ]
+
+
     data = {
         "user_info": user.to_dict() if user else None,
-        "clicks_news_li": clicks_news_li
+        "clicks_news_li": clicks_news_li,
+        "category_li": category_li
     }
 
     return render_template("news/index.html", data=data)
