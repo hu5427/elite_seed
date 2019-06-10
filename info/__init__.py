@@ -12,7 +12,7 @@ from werkzeug.wrappers import response
 from config import config
 
 # 将其变为全局变量，在函数中调用init集成SQLAlchemy到flask
-
+from info.utils.common import do_index_class
 
 db = SQLAlchemy()
 
@@ -65,6 +65,9 @@ def create_app(config_name):
 
     # 五 集成flask_session
     Session(app)
+
+    # 添加过滤器
+    app.add_template_filter(do_index_class,"index_class")
 
     # 注册蓝图
     from info.modules.index import index_blu
