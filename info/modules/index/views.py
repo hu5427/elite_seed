@@ -39,6 +39,7 @@ def index():
 
 @index_blu.route("/favicon.ico")
 def favicon():
+    # 三种方法
     # return send_file("news/favicon.ico")
     # return redirect("news/favicon.ico")
     return current_app.send_static_file("news/favicon.ico")
