@@ -25,9 +25,10 @@ def index():
         clicks_news = News.query.order_by(News.clicks.desc()).limit(constants.HOME_PAGE_MAX_NEWS).all()
     except Exception as e:
         current_app.logger.error(e)
-    clicks_news_li = []
-    for news_obj in clicks_news:
-        clicks_news_li.append(news_obj)
+    # clicks_news_li = []
+    # for news_obj in clicks_news:
+    #     clicks_news_li.append(news_obj)
+    clicks_news_li = [ news_obj for news_obj in clicks_news ]
 
     data = {
         "user_info": user.to_dict() if user else None,
