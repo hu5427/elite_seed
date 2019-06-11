@@ -127,8 +127,8 @@ $(function () {
             url: "/passport/login",
             type: "post",
             contentType: "application/json",
-            headers:{
-                "X-CSRFToken":getCookie("csrf_token")
+            headers: {
+                "X-CSRFToken": getCookie("csrf_token")
             },
             data: JSON.stringify(params),
             success: function (response) {
@@ -141,7 +141,6 @@ $(function () {
 
         })
     })
-
 
 
     // TODO 注册按钮点击
@@ -184,6 +183,9 @@ $(function () {
             type: "post",
             data: JSON.stringify(params),
             contentType: "application/json",
+            headers: {
+                "X-CSRFToken": getCookie("csrf_token")
+            },
             success: function (response) {
                 if (response.errno == 0) {
                     location.reload()
@@ -241,6 +243,9 @@ function sendSMSCode() {
         url: "/passport/sms_code",
         type: "post",
         contentType: 'application/json',
+        headers: {
+                "X-CSRFToken": getCookie("csrf_token")
+            },
         data: JSON.stringify(prams),
         // 由response接收后端数据 根据接收的值做相应的判断
         success: function (response) {
@@ -309,7 +314,7 @@ function generateUUID() {
 
 function logout() {
     $.get("/passport/logout", function (response) {
-        if (response.errno == "0"){
+        if (response.errno == "0") {
             location.reload()
         }
     })

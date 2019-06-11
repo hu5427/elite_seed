@@ -28,7 +28,7 @@ class Config(object):
     # 3.设置存储对象
     SESSION_REDIS = StrictRedis(
         host=REDIS_HOST, port=REDIS_PORT)
-    # 4.设置session为永久保存
+    # 4 设置session如果为false保存时间为浏览器关闭时间，true为PERMANENT_SESSION_LIFETIME时间
     SECRET_PERMANENT = False
     # 5.设置存储有效期为一天（单位是秒）
     PERMANENT_SESSION_LIFETIME = 8640
