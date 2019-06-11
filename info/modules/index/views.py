@@ -1,4 +1,5 @@
-from flask import render_template, current_app, redirect, send_file, session
+import errno
+from flask import render_template, current_app, redirect, send_file, session, request, jsonify
 
 from info import constants
 from info.models import User, News, Category
@@ -6,6 +7,54 @@ from info.modules.index import index_blu
 
 
 # 将试图函数全部写入此文件中方便开发与管理
+from info.utils.captcha.response_code import RET
+
+
+@index_blu.route("")
+def get_news_list():
+    """
+    1 接收参数
+    2 校验参数合法性
+    3 查询出新闻 ——关系分类（时间排序
+    3 返回响应以及数据
+    :return:
+    """
+
+    cid = request.args.get("cid")
+    page = request.args.get("page")
+    per_page = request.args.get("per_page")
+
+    try:
+        cid = int(cid)
+        page = int(page)
+        per_page = int(per_page)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR,errmsg="参数错误")
+
+    try:
+        paginate = News.query.filter(News.category_id==cid)\
+            .order_by(News.create_time.desc()).paginate(page,per_page,False)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR,errmsg="数据库查询错误")
+
+    new_list = paginate.items
+    current_page = paginate.page
+    total_page = paginate.pages
+
+    news_dict_li = list()
+    for news in new_list:
+        news_dict_li.append(news.to_dict())
+
+    data = {
+        "news_dict_li": news_dict_li,
+        "current_page": current_page,
+        "total_page": total_page
+    }
+
+    return jsonify(errno=RET.OK,errmsg="ok",data=data)
+
 
 @index_blu.route('/')
 def index():
